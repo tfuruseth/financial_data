@@ -1,0 +1,74 @@
+---
+title: "A collection of financial data found online"
+output: html_notebook
+---
+
+```{r setup}
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)  
+
+library(tidyverse)
+library(readxl)
+library(haven)
+library(httr)
+
+```
+
+
+# Maddison Project
+
+[Maddison project](https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2018) is good source for very long data series. 
+
+```{r madison}
+
+# Download Madison original works in Excel-format. URL refuse to work directly in readxl.
+# Use httr to download file
+
+httr::GET("https://www.rug.nl/ggdc/historicaldevelopment/maddison/data/mpd_2013-01.xlsx", 
+   httr::write_disk("mpd_2013-01.xlsx"))
+
+# Import data, 
+# skip the to first rows, 
+# clean the first header name and make the data in tidy format.
+
+maddision2013 <- read_xlsx("mpd_2013-01.xlsx", skip = 2) %>% 
+  rename(Year = 1) %>%
+  pivot_longer(-Year, names_to = "Country", values_to = "GDP")
+
+# 2013 data is still quite messy. 
+# Must review which variable to use (e.g. various sub-totals present)
+
+# 2018 edition. Looks similiar to the first, but with much more and cleaner data. 
+
+maddison2018 <- haven::read_dta("https://www.rug.nl/ggdc/historicaldevelopment/maddison/data/mpd2018.dta")
+
+# Cleaner data, but less data than 2018 edition. 
+
+maddison2020 <- haven::read_dta("https://www.rug.nl/ggdc/historicaldevelopment/maddison/data/mpd2020.dta")
+
+# 2018, 2020 data already in tidy format. Enjoy. 
+
+```
+
+
+# Macrohistory.net
+
+[Macrohistory](https://www.macrohistory.net/database/) provides long historical data. 
+
+
+```{r macrohistory}
+
+macrohistory <- haven::read_dta("http://data.macrohistory.net/JST/JSTdatasetR5.dta")
+
+```
+
+
+# Investor Amnesia
+
+[Investor Amnesia](https://investoramnesia.com/historical-data/) provides for the purpose data. Importing data depends on source and some require manual downlowds. No script at the moment. 
+
+# Kenneth French Data Library
+
+[Kenneth French](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) is a pioneer in factor investing. There are many return sources, thus find the one that fits the bill. 
+
+
